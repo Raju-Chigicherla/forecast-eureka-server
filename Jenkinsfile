@@ -1,5 +1,5 @@
 pipeline {
-    agent none
+    agent any
 		triggers {
         pollSCM '* * * * *'
     }
@@ -8,6 +8,7 @@ pipeline {
     }
     stages {
     	stage('Maven Build') {
+    		def dockerHome = tool name: 'docker', type: 'dockerTool'
 	        agent {
 	            docker {
 	                image 'maven:3.8.5-jdk-11'
@@ -16,22 +17,22 @@ pipeline {
 	        }
 	        steps {
 	        	sh 'mvn --version'
-						sh 'mvn clean package'
+				sh 'mvn clean package'
         	}
         }
         stage('Docker Build') {
            agent any
            steps {
-               sh 'docker build -t ${env.app_name} .'
+               sh "${dockerHome} build -t ${env.app_name} ."
            }
         }
         stage('Docker Push') {
            agent any
            steps {
            	withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-           		sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-           		sh 'docker push ${env.app_name}'
-						}
+           		sh "${dockerHome} login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+           		sh "${dockerHome} push ${env.app_name}"
+			}
            }
         }
     }
