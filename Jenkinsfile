@@ -1,7 +1,7 @@
 pipeline {
     agent none
-    parameters {
-        app_name = 'rajuchigicherla/forecast-server:latest'
+    environment {
+        app_name = "rajuchigicherla/forecast-server:latest"
     }
     stages {
     	stage('Maven Build') {
@@ -13,7 +13,7 @@ pipeline {
 	        }
 	        steps {
 	        	sh 'mvn --version'
-        	    sh 'mvn clean package'
+						sh 'mvn clean package'
         	}
         }
         stage('Docker Build') {
