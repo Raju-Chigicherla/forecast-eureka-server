@@ -1,5 +1,8 @@
 pipeline {
     agent none
+		triggers {
+        pollSCM '* * * * *'
+    }
     environment {
         app_name = "rajuchigicherla/forecast-server:latest"
     }
@@ -24,10 +27,12 @@ pipeline {
         }
         stage('Docker Push') {
            agent any
-           withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-						 sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-						 sh 'docker push ${env.app_name}'
-          }
+           steps {
+           	withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+           		sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+           		sh 'docker push ${env.app_name}'
+						}
+           }
         }
     }
 }
